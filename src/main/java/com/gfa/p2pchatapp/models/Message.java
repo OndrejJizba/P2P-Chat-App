@@ -10,6 +10,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.Random;
 
 @Entity
 @Getter
@@ -22,7 +23,6 @@ public class Message {
     @CreationTimestamp
     private LocalDateTime timestamp;
     @Id
-    @GeneratedValue
     private Long id;
     @ManyToOne
     private User user;
@@ -31,13 +31,18 @@ public class Message {
         this.username = user.getName();
         this.text = text;
         this.timestamp = getTimestamp();
-        this.id = (long) (Math.random() * 9000000 + 1000000);
+        this.id = generateId();
         this.user = user;
     }
 
     public Message(String username, String text) {
         this.username = username;
         this.text = text;
-        this.id = (long) (Math.random() * 9000000 + 1000000);
+        this.id = generateId();
+    }
+
+    private Long generateId() {
+        Random random = new Random();
+        return Math.abs(random.nextLong()) % (9999999 - 1000000 + 1) + 1000000;
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.thymeleaf.util.StringUtils;
 
 @Controller
 public class MainController {
@@ -26,40 +27,47 @@ public class MainController {
     public String mainPage(Model model) throws Exception {
         if (userService.getAllUsers().size() == 1) {
             model.addAttribute("name", userService.getName());
-            model.addAttribute("messages",messageService.getAllMessages());
+            model.addAttribute("messages", messageService.getAllMessages());
             return "mainpage";
-        }
-        else return "register";
+        } else return "register";
     }
 
-    @PostMapping({"", "/"})
-    public String changeName(@RequestParam String name, Model model) throws Exception {
-        if (name != null && !name.isEmpty()) {
+    @PostMapping("/change-name")
+    public String changeName(@RequestParam(required = false) String name, @RequestParam(required = false) String text, Model model) throws Exception {
+        if (!StringUtils.isEmpty(name)) {
             userService.changeName(name);
             model.addAttribute("name", name);
             model.addAttribute("nameChanged", "Name changed!");
-            model.addAttribute("messages",messageService.getAllMessages());
-            return "mainpage";
-        } else {
-            model.addAttribute("error", "The username field is empty.");
-            model.addAttribute("messages",messageService.getAllMessages());
-            return "mainpage";
-        }
 
+        } else  {
+            model.addAttribute("error", "The username field is empty.");
+        }
+        model.addAttribute("messages", messageService.getAllMessages());
+        return "mainpage";
+    }
+
+    @PostMapping("/send-message")
+    public String sendMessage(@RequestParam(required = false) String text, Model model) throws Exception {
+        if (!StringUtils.isEmpty(text)) {
+            messageService.addMessage(text);
+        } else {
+            model.addAttribute("error", "Textfield is empty.");
+        }
+        model.addAttribute("messages", messageService.getAllMessages());
+        return "mainpage";
     }
 
     @GetMapping("/register")
     public String getRegister(Model model) throws Exception {
         if (userService.getAllUsers().size() == 1) {
             model.addAttribute("name", userService.getName());
-            model.addAttribute("messages",messageService.getAllMessages());
+            model.addAttribute("messages", messageService.getAllMessages());
             return "mainpage";
-        }
-        else return "register";
+        } else return "register";
     }
 
     @PostMapping("/register")
-    public String register(@RequestParam String name, Model model){
+    public String register(@RequestParam String name, Model model) {
         if (name != null && !name.isEmpty()) {
             userService.addUser(new User(name));
             return "redirect:/";
