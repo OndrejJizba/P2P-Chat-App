@@ -1,7 +1,7 @@
 package com.gfa.p2pchatapp.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import lombok.Getter;
@@ -25,6 +25,7 @@ public class Message {
     @Id
     private Long id;
     @ManyToOne
+    @JsonIgnore
     private User user;
 
     public Message(String text, User user) {
@@ -39,6 +40,13 @@ public class Message {
         this.username = username;
         this.text = text;
         this.id = generateId();
+    }
+
+    public Message(Long id, String username, String text, LocalDateTime timestamp) {
+        this.username = username;
+        this.text = text;
+        this.timestamp = timestamp;
+        this.id = id;
     }
 
     private Long generateId() {

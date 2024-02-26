@@ -1,11 +1,11 @@
 package com.gfa.p2pchatapp.services;
 
 import com.gfa.p2pchatapp.models.Message;
-import com.gfa.p2pchatapp.models.User;
 import com.gfa.p2pchatapp.repositories.MessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 
@@ -30,5 +30,15 @@ public class MessageServiceImp implements MessageService {
     @Override
     public List<Message> getAllMessages() {
         return messageRepository.findAll().stream().sorted(Comparator.comparing(Message::getTimestamp)).toList();
+    }
+
+    @Override
+    public Message receiveMessage(Long id, String username, String text, LocalDateTime timestamp) {
+        return new Message(id, username, text, timestamp);
+    }
+
+    @Override
+    public void saveMessage(Message message) {
+        messageRepository.save(message);
     }
 }
