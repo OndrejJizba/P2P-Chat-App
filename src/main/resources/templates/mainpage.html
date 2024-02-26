@@ -6,6 +6,12 @@
     <title>Title</title>
 </head>
 <body>
+<p th:text="${error}"></p>
     <h1>Peer to Peer Chat Program</h1>
+    <form action="/" method="post">
+        <label for="name" id="name">Your username: </label>
+        <input type="text" name="name" th:value="${name}">
+        <button type="submit">Update</button> <span th:text="${nameChanged}"></span>
+    </form>
 </body>
 </html>

@@ -20,14 +20,35 @@ public class MainController {
     }
 
     @GetMapping({"/", ""})
-    public String mainPage(){
-        if (userService.getAllUsers().size() == 1) return "mainpage";
+    public String mainPage(Model model) throws Exception {
+        if (userService.getAllUsers().size() == 1) {
+            model.addAttribute("name", userService.getName(1L));
+            return "mainpage";
+        }
         else return "register";
     }
 
+    @PostMapping({"", "/"})
+    public String changeName(@RequestParam String name, Model model) throws Exception {
+        if (name != null && !name.isEmpty()) {
+            userService.changeName(1L, name);
+            model.addAttribute("name", name);
+            model.addAttribute("nameChanged", "Name changed!");
+            return "mainpage";
+        } else {
+            model.addAttribute("error", "The username field is empty.");
+            return "mainpage";
+        }
+
+    }
+
     @GetMapping("/register")
-    public String getRegister(){
-        return "register";
+    public String getRegister(Model model) throws Exception {
+        if (userService.getAllUsers().size() == 1) {
+            model.addAttribute("name", userService.getName(1L));
+            return "mainpage";
+        }
+        else return "register";
     }
 
     @PostMapping("/register")
