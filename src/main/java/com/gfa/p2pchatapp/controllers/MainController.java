@@ -1,6 +1,7 @@
 package com.gfa.p2pchatapp.controllers;
 
 import com.gfa.p2pchatapp.models.User;
+import com.gfa.p2pchatapp.services.MessageService;
 import com.gfa.p2pchatapp.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,16 +14,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class MainController {
 
     private final UserService userService;
+    private final MessageService messageService;
 
     @Autowired
-    public MainController(UserService userService) {
+    public MainController(UserService userService, MessageService messageService) {
         this.userService = userService;
+        this.messageService = messageService;
     }
 
     @GetMapping({"/", ""})
     public String mainPage(Model model) throws Exception {
         if (userService.getAllUsers().size() == 1) {
-            model.addAttribute("name", userService.getName(1L));
+            model.addAttribute("name", userService.getName());
+            model.addAttribute("messages",messageService.getAllMessages());
             return "mainpage";
         }
         else return "register";
@@ -31,12 +35,14 @@ public class MainController {
     @PostMapping({"", "/"})
     public String changeName(@RequestParam String name, Model model) throws Exception {
         if (name != null && !name.isEmpty()) {
-            userService.changeName(1L, name);
+            userService.changeName(name);
             model.addAttribute("name", name);
             model.addAttribute("nameChanged", "Name changed!");
+            model.addAttribute("messages",messageService.getAllMessages());
             return "mainpage";
         } else {
             model.addAttribute("error", "The username field is empty.");
+            model.addAttribute("messages",messageService.getAllMessages());
             return "mainpage";
         }
 
@@ -45,7 +51,8 @@ public class MainController {
     @GetMapping("/register")
     public String getRegister(Model model) throws Exception {
         if (userService.getAllUsers().size() == 1) {
-            model.addAttribute("name", userService.getName(1L));
+            model.addAttribute("name", userService.getName());
+            model.addAttribute("messages",messageService.getAllMessages());
             return "mainpage";
         }
         else return "register";

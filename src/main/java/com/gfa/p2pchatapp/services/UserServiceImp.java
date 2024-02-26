@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserServiceImp implements UserService{
@@ -29,15 +28,20 @@ public class UserServiceImp implements UserService{
     }
 
     @Override
-    public User changeName(Long id, String name) throws Exception {
-        User user = userRepository.findById(id).orElseThrow(() -> new Exception("User not found."));
+    public User changeName(String name) throws Exception {
+        User user = userRepository.findById(1L).orElseThrow(() -> new Exception("User not found."));
         user.setName(name);
         return userRepository.save(user);
     }
 
     @Override
-    public String getName(Long id) throws Exception {
-        User user = userRepository.findById(id).orElseThrow(() -> new Exception("User not found."));
+    public String getName() throws Exception {
+        User user = userRepository.findById(1L).orElseThrow(() -> new Exception("User not found."));
         return user.getName();
+    }
+
+    @Override
+    public User getUser() throws Exception {
+        return userRepository.findById(1L).orElseThrow(() -> new Exception("User not found."));
     }
 }

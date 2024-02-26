@@ -13,5 +13,8 @@
         <input type="text" name="name" th:value="${name}">
         <button type="submit">Update</button> <span th:text="${nameChanged}"></span>
     </form>
+<ul th:each="message : ${messages}">
+    <li th:utext="${message.getUsername()} + '<br/>' + ${message.getText()}"></li>
+</ul>
 </body>
 </html>
