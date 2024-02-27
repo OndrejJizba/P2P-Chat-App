@@ -1,6 +1,8 @@
 package com.gfa.p2pchatapp.controllers;
 
-import com.gfa.p2pchatapp.models.Message;
+import com.gfa.p2pchatapp.models.DTOs.ClientDTO;
+import com.gfa.p2pchatapp.models.DTOs.MessageDTO;
+import com.gfa.p2pchatapp.models.DTOs.MessageRequest;
 import com.gfa.p2pchatapp.services.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 
 @RestController
 public class ChatController {
@@ -34,10 +35,12 @@ public class ChatController {
     }
 
     @PostMapping("/api/message/receive")
-    public ResponseEntity<?> receiveMessage(@RequestBody Message message){
-        HashMap<String, Object> input = new HashMap<>();
-        input.put("message", messageService.receiveMessage(message.getId(), message.getUsername(), message.getText(), message.getTimestamp()));
-        input.put("client", "\"id\": \"" + message.getUsername() + "\"");
-        return ResponseEntity.status(201).body(input);
+    public ResponseEntity<?> receiveMessage(@RequestBody MessageRequest request){
+        MessageDTO message = request.getMessage();
+        ClientDTO client = request.getClient();
+        if (message.getId() == null || message.getUsername() == null || message.getText() == null || message.getTimestamp() == null || client.getId() == null){
+            return ResponseEntity.status(401).body(messageService.receiveMessageError(message, client));
+        }
+        return ResponseEntity.status(201).body(messageService.receiveMessage(message, client));
     }
 }
