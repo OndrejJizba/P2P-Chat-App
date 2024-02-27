@@ -88,6 +88,18 @@ public class MessageServiceImp implements MessageService {
         ClientDTO clientDTO = new ClientDTO(client.getId());
         result.put("message", messageDTO);
         result.put("client", clientDTO);
+
+        String peerAddress = System.getenv("CHAT_APP_PEER_ADDRESS");
+
+        if (peerAddress != null && !peerAddress.isEmpty()) {
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            MessageRequest messageRequest = new MessageRequest(messageDTO, clientDTO);
+            HttpEntity<MessageRequest> request = new HttpEntity<>(messageRequest, headers);
+            restTemplate.postForObject(peerAddress + "/api/message/receive", request, MessageRequest.class);
+        }
+
         return result;
     }
 
