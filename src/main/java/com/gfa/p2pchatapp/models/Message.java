@@ -31,7 +31,6 @@ public class Message {
     public Message(String text, User user) {
         this.username = user.getName();
         this.text = text;
-        this.timestamp = getTimestamp();
         this.id = generateId();
         this.user = user;
     }

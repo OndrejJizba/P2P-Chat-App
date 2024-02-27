@@ -40,23 +40,25 @@ public class MessageServiceImp implements MessageService {
     @Override
     public Message addMessage(String text) throws Exception {
         Message message = new Message(text, userService.getUser());
+        message = messageRepository.save(message);
 
         String uniqueID = System.getenv("CHAT_APP_UNIQUE_ID");
         String peerAddress = System.getenv("CHAT_APP_PEER_ADDRESS");
 
-        LocalDateTime date = message.getTimestamp();
-        Instant instant = date.toInstant(ZoneOffset.UTC);
-        Long longDate = instant.toEpochMilli();
+        if (peerAddress != null && !peerAddress.isEmpty()) {
+            LocalDateTime date = message.getTimestamp();
+            Instant instant = date.toInstant(ZoneOffset.UTC);
+            Long longDate = instant.toEpochMilli();
 
-        MessageDTO messageDTO = new MessageDTO(message.getId(), message.getUsername(), message.getText(), longDate);
-        ClientDTO clientDTO = new ClientDTO(uniqueID);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        MessageRequest messageRequest = new MessageRequest(messageDTO, clientDTO);
-        HttpEntity<MessageRequest> request = new HttpEntity<>(messageRequest, headers);
-        restTemplate.postForObject(peerAddress + "/api/message/receive", request, MessageRequest.class);
-
-        return messageRepository.save(message);
+            MessageDTO messageDTO = new MessageDTO(message.getId(), message.getUsername(), message.getText(), longDate);
+            ClientDTO clientDTO = new ClientDTO(uniqueID);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            MessageRequest messageRequest = new MessageRequest(messageDTO, clientDTO);
+            HttpEntity<MessageRequest> request = new HttpEntity<>(messageRequest, headers);
+            restTemplate.postForObject(peerAddress + "/api/message/receive", request, MessageRequest.class);
+        }
+        return message;
     }
 
     @Override
