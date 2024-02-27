@@ -33,7 +33,7 @@ public class MainController {
     }
 
     @PostMapping("/change-name")
-    public String changeName(@RequestParam(required = false) String name, @RequestParam(required = false) String text, Model model) throws Exception {
+    public String changeName(@RequestParam(required = false) String name, Model model) throws Exception {
         if (!StringUtils.isEmpty(name)) {
             userService.changeName(name);
             model.addAttribute("name", name);

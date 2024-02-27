@@ -10,4 +10,9 @@ import lombok.Setter;
 public class MessageRequest {
     private MessageDTO message;
     private ClientDTO client;
+
+    public MessageRequest(MessageDTO message, ClientDTO client) {
+        this.message = message;
+        this.client = client;
+    }
 }

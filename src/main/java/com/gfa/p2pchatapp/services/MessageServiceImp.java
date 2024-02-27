@@ -2,14 +2,20 @@ package com.gfa.p2pchatapp.services;
 
 import com.gfa.p2pchatapp.models.DTOs.ClientDTO;
 import com.gfa.p2pchatapp.models.DTOs.MessageDTO;
+import com.gfa.p2pchatapp.models.DTOs.MessageRequest;
 import com.gfa.p2pchatapp.models.Message;
 import com.gfa.p2pchatapp.repositories.MessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -21,16 +27,36 @@ public class MessageServiceImp implements MessageService {
     private final MessageRepository messageRepository;
     private final UserService userService;
 
+    private final RestTemplate restTemplate;
+
     @Autowired
-    public MessageServiceImp(MessageRepository messageRepository, UserService userService) {
+    public MessageServiceImp(MessageRepository messageRepository, UserService userService, RestTemplate restTemplate) {
         this.messageRepository = messageRepository;
         this.userService = userService;
+        this.restTemplate = restTemplate;
         messageRepository.save(new Message("App", "Hi there! Submit your message using the send button!"));
     }
 
     @Override
     public Message addMessage(String text) throws Exception {
-        return messageRepository.save(new Message(text, userService.getUser()));
+        Message message = new Message(text, userService.getUser());
+
+        String uniqueID = System.getenv("CHAT_APP_UNIQUE_ID");
+        String peerAddress = System.getenv("CHAT_APP_PEER_ADDRESS");
+
+        LocalDateTime date = message.getTimestamp();
+        Instant instant = date.toInstant(ZoneOffset.UTC);
+        Long longDate = instant.toEpochMilli();
+
+        MessageDTO messageDTO = new MessageDTO(message.getId(), message.getUsername(), message.getText(), longDate);
+        ClientDTO clientDTO = new ClientDTO(uniqueID);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        MessageRequest messageRequest = new MessageRequest(messageDTO, clientDTO);
+        HttpEntity<MessageRequest> request = new HttpEntity<>(messageRequest, headers);
+        restTemplate.postForObject(peerAddress + "/api/message/receive", request, MessageRequest.class);
+
+        return messageRepository.save(message);
     }
 
     @Override
